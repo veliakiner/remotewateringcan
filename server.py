@@ -12,3 +12,4 @@ def hello_world():
         time.sleep(5)
     finally:
         check_call(BASE_RELAY_CMD.format(0).split(" "))
+    return "Success"
