@@ -1,9 +1,15 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response, Response
 from subprocess import check_call
 import time
 import os
+import pygame.camera
+import pygame
+
+
 BASE_RELAY_CMD = "sudo usbrelay V5ZEA_2={}"
 app = Flask(__name__)
+
+app.cam = pygame.camera.init()
 
 
 def start_watering():
@@ -30,6 +36,32 @@ def hello_world():
         stop_watering()
     return "Success"
 
+from time import time, sleep
+
+class Camera(object):
+    def __init__(self):
+        self.frames = [open('/home/veliakiner/filename.jpg', 'rb').read() for f in ['1', '2', '3']]
+
+    def get_frame(self):
+        return self.frames[int(time()) % 3]
+
+def gen():
+    while True:
+        # pygame.camera.list_camera() #Camera detected or not
+        cam = pygame.camera.Camera("/dev/video1", (640, 480))
+        cam.start()
+        img = cam.get_image()
+        cam.stop()
+        pygame.image.save(img,"filename.jpg")
+        with open("filename.jpg", "rb") as f:
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + f.read() + b'\r\n')
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route("/")
 def main():
