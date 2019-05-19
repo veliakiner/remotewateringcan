@@ -1,0 +1,15 @@
+<b>bold text</b>
+<button id="waterer">button</button>
+<button id="dummy" onclick="alert('test')">button2</button>
+<script>
+    let func = function() {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "/water", false);
+            xhr.onload = // something
+            xhr.send()
+        }
+    document.getElementById("waterer").addEventListener("click",
+    func,
+    false
+);
+</script>
