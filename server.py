@@ -45,17 +45,25 @@ class Camera(object):
     def get_frame(self):
         return self.frames[int(time()) % 3]
 
+import io
+from PIL import Image
 def gen():
-    while True:
-        # pygame.camera.list_camera() #Camera detected or not
-        cam = pygame.camera.Camera("/dev/video1", (640, 480))
-        cam.start()
-        img = cam.get_image()
-        cam.stop()
-        pygame.image.save(img,"filename.jpg")
-        with open("filename.jpg", "rb") as f:
+    cam = pygame.camera.Camera("/dev/video1", (640, 480))
+    cam.start()
+    try:
+        while True:
+            # pygame.camera.list_camera() #Camera detected or not
+            img = cam.get_image()
+            bytes = pygame.image.tostring(img, "RGB")
+            img = Image.frombytes("RGB", (640, 480), bytes)
+            output = io.BytesIO()
+            img.save(output, "JPEG")
+            output.seek(0)
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + f.read() + b'\r\n')
+                   b'Content-Type: image/jpeg\r\n\r\n' + output.read() + b'\r\n')
+    finally:
+        print("stopped")
+        cam.stop()
 
 
 @app.route('/video_feed')
