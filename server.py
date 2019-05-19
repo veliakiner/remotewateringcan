@@ -36,23 +36,14 @@ def hello_world():
         stop_watering()
     return "Success"
 
-from time import time, sleep
-
-class Camera(object):
-    def __init__(self):
-        self.frames = [open('/home/veliakiner/filename.jpg', 'rb').read() for f in ['1', '2', '3']]
-
-    def get_frame(self):
-        return self.frames[int(time()) % 3]
 
 import io
 from PIL import Image
 def gen():
-    cam = pygame.camera.Camera("/dev/video1", (640, 480))
+    cam = pygame.camera.Camera("/dev/video0", (640, 480))
     cam.start()
     try:
         while True:
-            # pygame.camera.list_camera() #Camera detected or not
             img = cam.get_image()
             bytes = pygame.image.tostring(img, "RGB")
             img = Image.frombytes("RGB", (640, 480), bytes)
