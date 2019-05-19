@@ -36,17 +36,17 @@ def hello_world():
         stop_watering()
     return "Success"
 
-
+RES = (320, 240)
 import io
 from PIL import Image
 def gen():
-    cam = pygame.camera.Camera("/dev/video0", (640, 480))
+    cam = pygame.camera.Camera("/dev/video0", RES)
     cam.start()
     try:
         while True:
             img = cam.get_image()
             bytes = pygame.image.tostring(img, "RGB")
-            img = Image.frombytes("RGB", (640, 480), bytes)
+            img = Image.frombytes("RGB", RES, bytes)
             output = io.BytesIO()
             img.save(output, "JPEG")
             output.seek(0)
