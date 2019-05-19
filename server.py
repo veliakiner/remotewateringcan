@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from subprocess import check_call
 import time
 import os
@@ -20,8 +20,9 @@ def stop_watering():
     return check_call(BASE_RELAY_CMD.format(0).split(" "))
 
 
-@app.route('/water')
+@app.route('/water', methods=['POST'])
 def hello_world():
+    print(request.data)
     try:
         start_watering()
         time.sleep(5)

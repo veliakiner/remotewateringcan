@@ -1,15 +1,17 @@
 <b>bold text</b>
 <button id="waterer">button</button>
+<input id="token" name="name">
 <button id="dummy" onclick="alert('test')">button2</button>
 <script>
     let func = function() {
+            let pw = document.getElementById("token").value
             let xhr = new XMLHttpRequest();
-            xhr.open("GET", "/water", false);
-            xhr.onload = // something
-            xhr.send()
+            xhr.open("POST", "/water", true);
+            xhr.onload = function() {alert("done")}
+            xhr.send(pw)
         }
     document.getElementById("waterer").addEventListener("click",
-    func,
+    func
     false
 );
 </script>
