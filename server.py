@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, Response
+from flask import Flask, render_template, request, Response
 from subprocess import check_call
 import time
 import os
@@ -25,13 +25,23 @@ def stop_watering():
         return
     return check_call(BASE_RELAY_CMD.format(0).split(" "))
 
+import json
 
 @app.route('/water', methods=['POST'])
 def hello_world():
-    print(request.data)
+    loaded = json.loads(request.data.decode("utf-8"))
+    for key in loaded:
+        print(key, loaded[key])
+    duration = loaded.get("duration")
+    try:
+        duration = int(duration)
+    except TypeError:
+        return "Failed: invalid"
+    duration = max(duration, 0)
+    duration = min(duration, 20)
     try:
         start_watering()
-        time.sleep(5)
+        time.sleep(duration)
     finally:
         stop_watering()
     return "Success"

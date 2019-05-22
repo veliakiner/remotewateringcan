@@ -1,14 +1,17 @@
 <b>bold text</b>
 <button id="waterer">button</button>
-<input id="token" name="name">
-<button id="dummy" onclick="alert('test')">button2</button>
+
+
+<div>Password:<input id="token" name="name"></div>
+<div>Time to water (in seconds):<input id="time" name="time"></div>
 <script>
     let func = function() {
             let pw = document.getElementById("token").value
+            let duration = document.getElementById("time").value
             let xhr = new XMLHttpRequest();
             xhr.open("POST", "/water", true);
-            xhr.onload = function() {alert("done")}
-            xhr.send(pw)
+            xhr.onload = function() {alert(xhr.response)}
+            xhr.send(JSON.stringify({password:pw, duration:duration}))
         }
     document.getElementById("waterer").addEventListener("click",
     func,
