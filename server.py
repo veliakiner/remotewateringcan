@@ -4,7 +4,7 @@ import time
 import os
 import pygame.camera
 import pygame
-
+PASSWORD = os.environ.get("FLASK_PASSWORD")
 
 BASE_RELAY_CMD = "sudo usbrelay V5ZEA_2={}"
 app = Flask(__name__)
@@ -30,8 +30,10 @@ import json
 @app.route('/water', methods=['POST'])
 def hello_world():
     loaded = json.loads(request.data.decode("utf-8"))
-    for key in loaded:
-        print(key, loaded[key])
+
+    password = loaded.get("password")
+    if password != PASSWORD:
+        return "Failed: wrong password"
     duration = loaded.get("duration")
     try:
         duration = int(duration)
