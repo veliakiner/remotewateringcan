@@ -6,7 +6,7 @@ import pygame.camera
 import pygame
 PASSWORD = os.environ.get("FLASK_PASSWORD")
 
-BASE_RELAY_CMD = "sudo usbrelay V5ZEA_2={}"
+BASE_RELAY_CMD = "sudo usbrelay V5ZEA_1={}"
 app = Flask(__name__)
 
 app.cam = pygame.camera.init()
