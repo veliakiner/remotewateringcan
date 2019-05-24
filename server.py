@@ -51,8 +51,8 @@ def hello_world():
 RES = (320, 240)
 import io
 from PIL import Image
-def gen():
-    cam = pygame.camera.Camera("/dev/video0", RES)
+def gen(feed):
+    cam = pygame.camera.Camera("/dev/video{}".format(feed), RES)
     cam.start()
     try:
         while True:
@@ -69,9 +69,17 @@ def gen():
         cam.stop()
 
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen(),
+@app.route('/video_feed_1')
+def video_feed_1():
+    return _video_feed(0)
+
+
+@app.route('/video_feed_2')
+def video_feed_2():
+    return _video_feed(1)
+
+def _video_feed(feed):
+    return Response(gen(feed),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route("/")
