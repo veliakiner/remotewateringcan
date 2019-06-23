@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, send_file
 from subprocess import check_call
 import time
 import os
@@ -8,6 +8,7 @@ PASSWORD = os.environ.get("FLASK_PASSWORD")
 
 BASE_RELAY_CMD = "sudo usbrelay V5ZEA_1={}"
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 app.cam = pygame.camera.init()
 
@@ -48,22 +49,33 @@ def hello_world():
         stop_watering()
     return "Success"
 
-RES = (320, 240)
+# @app.after_request
+# def add_header(r):
+#     """
+#     Add headers to both force latest IE rendering engine or Chrome Frame,
+#     and also to cache the rendered page for 10 minutes.
+#     """
+#     r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#     r.headers["Pragma"] = "no-cache"
+#     r.headers["Expires"] = "0"
+#     r.headers['Cache-Control'] = 'public, max-age=0'
+#     return r
+
+RES = (640, 480)
 import io
 from PIL import Image
+import time
 def gen(feed):
     cam = pygame.camera.Camera("/dev/video{}".format(feed), RES)
     cam.start()
     try:
-        while True:
-            img = cam.get_image()
-            bytes = pygame.image.tostring(img, "RGB")
-            img = Image.frombytes("RGB", RES, bytes)
-            output = io.BytesIO()
+        img = cam.get_image()
+        bytes = pygame.image.tostring(img, "RGB")
+        img = Image.frombytes("RGB", RES, bytes)
+        filename = "feed-{}.png".format(feed)
+        with open(filename, "w") as output:
             img.save(output, "JPEG")
-            output.seek(0)
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + output.read() + b'\r\n')
+        return filename
     finally:
         print("stopped")
         cam.stop()
@@ -79,9 +91,11 @@ def video_feed_2():
     return _video_feed(1)
 
 def _video_feed(feed):
-    return Response(gen(feed),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    filename = gen(feed)
+    return send_file(filename, mimetype='image/jpg')
 
+import subprocess
 @app.route("/")
 def main():
-    return render_template("home.html")
+    aa = subprocess.Popen("free -m ", shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
+    return render_template("home.html", mem=aa[0].decode("utf-8"))
