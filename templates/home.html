@@ -3,8 +3,7 @@
 
 <div>Password:<input id="token" name="name"></div>
 <div>Time to water (in seconds):<input id="time" name="time"></div>
-<div><button id="feed1" name="Feed 1">feed 1</button></div>
-<div><button id="feed2" name="Feed 2">feed 2</button></div>
+<div><button id="feed1" name="Feed 1">Refresh</button></div>
 <script>
     let func = function() {
             let pw = document.getElementById("token").value
@@ -18,27 +17,20 @@
     func,
     false
 );
-    let func2 = function() {
-        document.getElementById("feed_base").setAttribute("src", "/video_feed_1");
-        }
+async function refresh() {
+  feed_base.innerHTML=await(await fetch("/video_feed_1"));
+  document.getElementById("feed_base").src="/video_feed_1";
+}
     document.getElementById("feed1").addEventListener("click",
-    func2,
-    false
-);
-    let func3 = function() {
-        document.getElementById("feed_base").setAttribute("src", "/video_feed_2");
-        }
-    document.getElementById("feed2").addEventListener("click",
-    func3,
-    false
-);
+    refresh,
+    false)
 </script>
 <html>
   <head>
     <title>Live Pepper Feed</title>
   </head>
   <body>
-    <h1>Video Streaming Demonstration</h1>
+    <h1>Live Pepper Feed</h1>
     <img id=feed_base src="/video_feed_1">
   </body>
 </html>
