@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, Response, send_file
 from subprocess import check_call
-import time
+import sensor
 import os
 import pygame.camera
 import pygame
@@ -97,5 +97,4 @@ def _video_feed(feed):
 import subprocess
 @app.route("/")
 def main():
-    aa = subprocess.Popen("free -m ", shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
-    return render_template("home.html", mem=aa[0].decode("utf-8"))
+    return render_template("home.html", reading=(sensor.read()))
