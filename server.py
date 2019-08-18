@@ -15,7 +15,7 @@ from database import MoistureReading, init_db, WateringEvent
 
 if os.environ.get("MOCK_WATER"):
     def read():
-        return "-1"
+        return time.time()
 else:
     from sensor import read
 
@@ -111,7 +111,9 @@ def _video_feed(feed):
 
 @app.route("/")
 def main():
-    return render_template("home.html", reading=(read()))
+    latest_reading = session.query(MoistureReading.reading).order_by(MoistureReading.date.desc()).first()[0]
+    last_watering = "None"
+    return render_template("home.html", reading=latest_reading, last_watering=last_watering)
 
 
 def record_moisture(session):
