@@ -61,6 +61,7 @@ def hello_world():
         time.sleep(duration)
     finally:
         stop_watering()
+    # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
     app.session.add(WateringEvent(date=datetime.now(), duration=duration))
     return "Success"
 
