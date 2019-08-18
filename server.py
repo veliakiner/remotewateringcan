@@ -121,7 +121,7 @@ def record_moisture(session):
 def record_forever(session):
     while True:
         record_moisture(session)
-        time.sleep(3)
+        time.sleep(60)
 
 if __name__ == "__main__":
     session = init_db()
