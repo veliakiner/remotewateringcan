@@ -13,6 +13,7 @@ from PIL import Image
 import pygame
 import pygame.camera
 from database import MoistureReading, init_db, WateringEvent
+session = init_db()
 
 if os.environ.get("MOCK_WATER"):
     def read():
@@ -27,7 +28,6 @@ app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 app.cam = pygame.camera.init()
-app.session = init_db()
 
 
 def start_watering():
@@ -64,7 +64,8 @@ def hello_world():
     finally:
         stop_watering()
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
-    app.session.add(WateringEvent(date=datetime.now(), duration=duration))
+    session.add(WateringEvent(date=datetime.now(), duration=duration))
+    session.commit()
     return "Success"
 
 # @app.after_request
@@ -113,7 +114,7 @@ def _video_feed(feed):
 
 @app.route("/")
 def main():
-    latest_reading = app.session.query(MoistureReading.reading).order_by(MoistureReading.date.desc()).first()[0]
+    latest_reading = session.query(MoistureReading.reading).order_by(MoistureReading.date.desc()).first()[0]
     last_watering = "None"
     return render_template("home.html", reading=latest_reading, last_watering=last_watering)
 
