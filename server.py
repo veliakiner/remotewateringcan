@@ -1,14 +1,24 @@
-from flask import Flask, render_template, request, Response, send_file
-from subprocess import check_call
+import io
+import json
 import os
+import subprocess
+import time
+from datetime import datetime
+from subprocess import check_call
+
+from flask import Flask, Response, render_template, request, send_file
+from PIL import Image
+
+import pygame
+import pygame.camera
+from database import MoistureReading, init_db, WateringEvent
+
 if os.environ.get("MOCK_WATER"):
     def read():
-        return "null: no sensor interface"
+        return "-1"
 else:
     from sensor import read
 
-import pygame.camera
-import pygame
 PASSWORD = os.environ.get("FLASK_PASSWORD")
 
 BASE_RELAY_CMD = "sudo usbrelay V5ZEA_1={}"
@@ -31,7 +41,6 @@ def stop_watering():
         return
     return check_call(BASE_RELAY_CMD.format(0).split(" "))
 
-import json
 
 @app.route('/water', methods=['POST'])
 def hello_world():
@@ -52,6 +61,7 @@ def hello_world():
         time.sleep(duration)
     finally:
         stop_watering()
+    app.session.add(WateringEvent(date=datetime.now(), duration =duration))
     return "Success"
 
 # @app.after_request
@@ -67,9 +77,6 @@ def hello_world():
 #     return r
 
 RES = (640, 480)
-import io
-from PIL import Image
-import time
 def gen(feed):
     cam = pygame.camera.Camera("/dev/video{}".format(feed), RES)
     cam.start()
@@ -101,10 +108,24 @@ def _video_feed(feed):
     return send_file(filename, mimetype='image/jpg')
 
 
-import subprocess
 @app.route("/")
 def main():
     return render_template("home.html", reading=(read()))
 
+
+def record_moisture(session):
+    session.add(MoistureReading(reading=read(), date=datetime.now()))
+    session.commit()
+
+def record_forever(session):
+    while True:
+        record_moisture(session)
+        time.sleep(3)
+
 if __name__ == "__main__":
+    session = init_db()
+    import threading
+    thread = threading.Thread(target=lambda: record_forever(session))
+    thread.start()
+    app.session = session
     app.run(host="0.0.0.0")

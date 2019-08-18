@@ -29,9 +29,11 @@ class WateringEvent(Base):
         return "<User(date='%s', duration='%s')>" % (
             self.date, self.duration)
 
+from sqlalchemy.orm import sessionmaker
 
 def init_db():
     engine = create_engine('sqlite:///waterer.db', echo=False)
+    Session = sessionmaker(bind=engine)
     Base.metadata.create_all(engine)
     return Session()
 
@@ -45,9 +47,9 @@ if __name__ == "__main__":
     # import pdb;pdb.set_trace()
     session = Session()
     from datetime import datetime
-    event = MoistureReading(reading=100, date=datetime.now())
-    session.add(event)
-    session.flush()
-    session.commit()
-    session.flush()
+    # event = MoistureReading(reading=100, date=datetime.now())
+    # session.add(event)
+    # session.flush()
+    # session.commit()
+    # session.flush()
     print(session.query(MoistureReading.date).all())
