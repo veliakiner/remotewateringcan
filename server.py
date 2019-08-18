@@ -127,8 +127,4 @@ def record_forever(session):
 
 if __name__ == "__main__":
     session = init_db()
-    import threading
-    thread = threading.Thread(target=lambda: record_forever(session))
-    thread.start()
-    app.session = session
-    app.run(host="0.0.0.0")
+    record_forever(session)
