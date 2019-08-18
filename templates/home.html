@@ -4,7 +4,7 @@
 <div>Password:<input id="token" name="name"></div>
 <div>Time to water (in seconds):<input id="time" name="time"></div>
 <div><button id="feed1" name="Feed 1">Refresh</button></div>
-<div>Current sensor reading (lower is wetter): {{reading}}</div>
+<div>Latest sensor reading (within the last minute) (lower is wetter): {{reading}}</div>
 <script>
     let func = function() {
             let pw = document.getElementById("token").value
