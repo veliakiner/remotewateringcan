@@ -90,9 +90,11 @@ def video_feed_1():
 def video_feed_2():
     return _video_feed(1)
 
+
 def _video_feed(feed):
     filename = gen(feed)
     return send_file(filename, mimetype='image/jpg')
+
 
 import subprocess
 @app.route("/")
