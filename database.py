@@ -47,11 +47,10 @@ if __name__ == "__main__":
     # import pdb;pdb.set_trace()
     session = Session()
     from datetime import datetime
-    event = MoistureReading(reading=100, date=datetime.now())
+    event = MoistureReading(reading=100, date=datetime.now())   
     # session.add(event)
     # session.flush()
     # session.commit()
     # session.flush()
-    print(session.query(MoistureReading.date).all())
-    print(session.query(MoistureReading.date).all()[0][0])
+    print(session.query(MoistureReading.reading, MoistureReading.date).all())
     print(session.query(WateringEvent.duration).all())
