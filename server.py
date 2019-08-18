@@ -61,7 +61,7 @@ def hello_world():
         time.sleep(duration)
     finally:
         stop_watering()
-    app.session.add(WateringEvent(date=datetime.now(), duration =duration))
+    app.session.add(WateringEvent(date=datetime.now(), duration=duration))
     return "Success"
 
 # @app.after_request

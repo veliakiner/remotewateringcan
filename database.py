@@ -53,3 +53,4 @@ if __name__ == "__main__":
     # session.commit()
     # session.flush()
     print(session.query(MoistureReading.date).all())
+    print(session.query(WateringEvent.duration).all())
