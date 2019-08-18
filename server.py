@@ -13,7 +13,6 @@ from PIL import Image
 import pygame
 import pygame.camera
 from database import MoistureReading, init_db, WateringEvent
-session = init_db()
 
 if os.environ.get("MOCK_WATER"):
     def read():
@@ -28,6 +27,7 @@ app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 app.cam = pygame.camera.init()
+app.session = init_db()
 
 
 def start_watering():
