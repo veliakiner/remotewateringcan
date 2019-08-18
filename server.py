@@ -1,7 +1,12 @@
 from flask import Flask, render_template, request, Response, send_file
 from subprocess import check_call
-import sensor
 import os
+if os.environ.get("MOCK_WATER"):
+    def read():
+        return "null: no sensor interface"
+else:
+    from sensor import read
+
 import pygame.camera
 import pygame
 PASSWORD = os.environ.get("FLASK_PASSWORD")
@@ -99,4 +104,7 @@ def _video_feed(feed):
 import subprocess
 @app.route("/")
 def main():
-    return render_template("home.html", reading=(sensor.read()))
+    return render_template("home.html", reading=(read()))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
