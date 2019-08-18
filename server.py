@@ -2,6 +2,7 @@ import io
 import json
 import os
 import subprocess
+
 import time
 from datetime import datetime
 from subprocess import check_call
@@ -12,6 +13,7 @@ from PIL import Image
 import pygame
 import pygame.camera
 from database import MoistureReading, init_db, WateringEvent
+session = init_db()
 
 if os.environ.get("MOCK_WATER"):
     def read():
@@ -126,5 +128,4 @@ def record_forever(session):
         time.sleep(60)
 
 if __name__ == "__main__":
-    session = init_db()
     record_forever(session)
