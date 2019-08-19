@@ -2,6 +2,7 @@ import io
 import json
 import os
 import subprocess
+import threading
 
 import time
 from datetime import datetime
@@ -11,6 +12,7 @@ from flask import Flask, Response, render_template, request, send_file
 from PIL import Image
 
 import pygame
+import requests
 import pygame.camera
 from database import MoistureReading, init_db, WateringEvent
 session = init_db()
@@ -20,6 +22,8 @@ if os.environ.get("MOCK_WATER"):
         return time.time()
 else:
     from sensor import read
+
+slack_key = os.environ.get("SLACK_KEY")
 
 PASSWORD = os.environ.get("FLASK_PASSWORD")
 
@@ -63,9 +67,24 @@ def hello_world():
         time.sleep(duration)
     finally:
         stop_watering()
+
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
-    session.add(WateringEvent(date=datetime.now(), duration=duration))
-    session.commit()
+    event = WateringEvent(date=datetime.now(), duration=duration)
+    def confirm_and_commit(event, delay=60):
+        reading_before = read()
+        time.sleep(delay)
+        reading_after = read()
+        if reading_after < reading_before: # lower reading is wetter
+            session.add(event)
+            session.commit()
+        else:
+            # Warn me about potentially dry tank
+            requests.post("https://hooks.slack.com/services/{}".format(slack_key),
+                          headers={"Content-type": "application/json"},
+                          json={"text": "Plant was watered but no moisture level increase was detected. Check that the tank has water."})
+    # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
+    deferred = threading.Thread(target=lambda: confirm_and_commit(event))
+    deferred.start()
     return "Success"
 
 # @app.after_request

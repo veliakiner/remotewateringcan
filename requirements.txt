@@ -4,3 +4,4 @@ pygame
 adafruit-ads1x15
 
 sqlalchemy
+requests
