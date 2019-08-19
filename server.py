@@ -15,6 +15,8 @@ import pygame
 import requests
 import pygame.camera
 from database import MoistureReading, init_db, WateringEvent
+
+SAMPLING_FREQ = 60
 session = init_db()
 
 if os.environ.get("MOCK_WATER"):
@@ -68,24 +70,27 @@ def hello_world():
     finally:
         stop_watering()
 
-    # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
     event = WateringEvent(date=datetime.now(), duration=duration)
-    def confirm_and_commit(event, delay=60):
+
+    def confirm_and_commit(event, delay=SAMPLING_FREQ * 1.5):
         reading_before = read()
         time.sleep(delay)
         reading_after = read()
-        if reading_after < reading_before: # lower reading is wetter
+        if reading_after < reading_before:  # lower reading is wetter
             session.add(event)
             session.commit()
         else:
             # Warn me about potentially dry tank
             requests.post("https://hooks.slack.com/services/{}".format(slack_key),
                           headers={"Content-type": "application/json"},
-                          json={"text": "Plant was watered but no moisture level increase was detected. Check that the tank has water."})
+                          json={
+                              "text": "Plant was watered but no moisture level increase was detected. Check that the tank has water."})
+
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
     deferred = threading.Thread(target=lambda: confirm_and_commit(event))
     deferred.start()
     return "Success"
+
 
 # @app.after_request
 # def add_header(r):
@@ -100,6 +105,8 @@ def hello_world():
 #     return r
 
 RES = (640, 480)
+
+
 def gen(feed):
     cam = pygame.camera.Camera("/dev/video{}".format(feed), RES)
     cam.start()
@@ -133,7 +140,8 @@ def _video_feed(feed):
 
 @app.route("/")
 def main():
-    latest_reading = (session.query(MoistureReading.reading).order_by(MoistureReading.date.desc()).first() or ["None"])[0]
+    latest_reading = (session.query(MoistureReading.reading).order_by(MoistureReading.date.desc()).first() or ["None"])[
+        0]
     last_watering = (session.query(WateringEvent.date).order_by(WateringEvent.date.desc()).first() or ["None"])[0]
     return render_template("home.html", reading=latest_reading, last_watering=last_watering)
 
@@ -142,10 +150,12 @@ def record_moisture(session):
     session.add(MoistureReading(reading=read(), date=datetime.now()))
     session.commit()
 
+
 def record_forever(session):
     while True:
         record_moisture(session)
-        time.sleep(60)
+        time.sleep(SAMPLING_FREQ)
+
 
 if __name__ == "__main__":
     record_forever(session)
