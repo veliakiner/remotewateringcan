@@ -133,8 +133,8 @@ def _video_feed(feed):
 
 @app.route("/")
 def main():
-    latest_reading = session.query(MoistureReading.reading).order_by(MoistureReading.date.desc()).first()[0]
-    last_watering = session.query(WateringEvent.date).order_by(WateringEvent.date.desc()).first()[0]
+    latest_reading = (session.query(MoistureReading.reading).order_by(MoistureReading.date.desc()).first() or ["None"])[0]
+    last_watering = (session.query(WateringEvent.date).order_by(WateringEvent.date.desc()).first() or ["None"])[0]
     return render_template("home.html", reading=latest_reading, last_watering=last_watering)
 
 
