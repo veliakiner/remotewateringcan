@@ -70,9 +70,9 @@ def hello_world():
     finally:
         stop_watering()
 
-    event = WateringEvent(date=datetime.now(), duration=duration)
 
-    def confirm_and_commit(event, delay=SAMPLING_FREQ * 1.5):
+    def confirm_and_commit(delay=SAMPLING_FREQ * 1.5):
+        event = WateringEvent(date=datetime.now(), duration=duration)
         reading_before = read()
         time.sleep(delay)
         reading_after = read()
@@ -87,7 +87,7 @@ def hello_world():
                               "text": "Plant was watered but no moisture level increase was detected. Check that the tank has water."})
 
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
-    deferred = threading.Thread(target=lambda: confirm_and_commit(event))
+    deferred = threading.Thread(target=lambda: confirm_and_commit())
     deferred.start()
     return "Success"
 
