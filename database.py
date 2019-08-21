@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy import Column, DateTime, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import session
+from sqlalchemy.orm import session, scoped_session
 
 Base = declarative_base()
 
@@ -33,10 +33,9 @@ from sqlalchemy.orm import sessionmaker
 
 def init_db():
     engine = create_engine('sqlite:///waterer.db', echo=False)
-    Session = sessionmaker(bind=engine)
+    Session = scoped_session(sessionmaker(bind=engine))
     Base.metadata.create_all(engine)
     return Session()
-
 
 
 if __name__ == "__main__":
