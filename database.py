@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy import Column, DateTime, Integer, String, Float
+from sqlalchemy import create_engine
+from sqlalchemy import Column, DateTime, Integer, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import session, scoped_session
+from sqlalchemy.orm import scoped_session
 
 Base = declarative_base()
 
@@ -32,14 +32,14 @@ class WateringEvent(Base):
 from sqlalchemy.orm import sessionmaker
 
 def init_db():
-    engine = create_engine('sqlite:///waterer.db', echo=False)
+    engine = create_engine('sqlite:///waterer.db?check_same_thread=False', echo=False)
     Session = scoped_session(sessionmaker(bind=engine))
     Base.metadata.create_all(engine)
     return Session()
 
 
 if __name__ == "__main__":
-    engine = create_engine('sqlite:///waterer.db', echo=False)
+    engine = create_engine('sqlite:///waterer.db?check_same_thread=False', echo=False)
     db = Base.metadata.create_all(engine)
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
