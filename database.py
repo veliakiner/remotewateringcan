@@ -43,13 +43,13 @@ if __name__ == "__main__":
     db = Base.metadata.create_all(engine)
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
-    # import pdb;pdb.set_trace()
-    session = Session()
-    from datetime import datetime
-    event = MoistureReading(reading=100, date=datetime.now())   
-    # session.add(event)
-    # session.flush()
-    # session.commit()
-    # session.flush()
-    print(session.query(MoistureReading.reading, MoistureReading.date).all())
-    print(session.query(WateringEvent.duration).all())
+    import pdb;pdb.set_trace()
+    # session = Session()
+    # from datetime import datetime
+    # event = MoistureReading(reading=100, date=datetime.now())
+    # # session.add(event)
+    # # session.flush()
+    # # session.commit()
+    # # session.flush()
+    # print(session.query(MoistureReading.reading, MoistureReading.date).all())
+    # print(session.query(WateringEvent.duration).all())
