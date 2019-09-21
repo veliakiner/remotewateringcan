@@ -43,8 +43,11 @@ if __name__ == "__main__":
     db = Base.metadata.create_all(engine)
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
-    import pdb;pdb.set_trace()
-    # session = Session()
+    session = Session()
+    with open("dump_watering.csv", "w") as f:
+        for reading in session.query(WateringEvent).all():
+            f.write("{},{}\n".format(reading.duration, reading.date.timestamp()))
+
     # from datetime import datetime
     # event = MoistureReading(reading=100, date=datetime.now())
     # # session.add(event)
