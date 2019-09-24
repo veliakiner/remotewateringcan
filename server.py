@@ -84,7 +84,8 @@ def hello_world():
             requests.post("https://hooks.slack.com/services/{}".format(slack_key),
                           headers={"Content-type": "application/json"},
                           json={
-                              "text": "Plant was watered but no moisture level increase was detected. Check that the tank has water."})
+                              "text": "Plant was watered but no moisture level increase was detected "
+                                      "(before: {}, after: {}). Check that the tank has water.".format(reading_before, reading_after)})
 
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
     deferred = threading.Thread(target=lambda: confirm_and_commit())
