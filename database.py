@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, DateTime, Integer, Float
+from sqlalchemy import Column, DateTime, Integer, Float, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session
 
@@ -24,6 +24,7 @@ class WateringEvent(Base):
     id = Column(Integer, primary_key=True)
     date = Column(DateTime)
     duration = Column(Integer)
+    dry = Column(Boolean, nullable=True)
 
     def __repr__(self):
         return "<User(date='%s', duration='%s')>" % (

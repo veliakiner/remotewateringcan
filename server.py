@@ -72,14 +72,15 @@ def hello_world():
 
 
     def confirm_and_commit(delay=SAMPLING_FREQ * 1.5):
-        event = WateringEvent(date=datetime.now(), duration=duration)
         reading_before = read()
         time.sleep(delay)
         reading_after = read()
-        if reading_after < reading_before:  # lower reading is wetter
-            session.add(event)
-            session.commit()
-        else:
+        # lower reading is wetter
+        dry = reading_after >= reading_before
+        event = WateringEvent(date=datetime.now(), duration=duration, dry=dry)
+        session.add(event)
+        session.commit()
+        if dry:
             # Warn me about potentially dry tank
             requests.post("https://hooks.slack.com/services/{}".format(slack_key),
                           headers={"Content-type": "application/json"},
