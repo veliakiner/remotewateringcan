@@ -30,7 +30,7 @@ slack_key = os.environ.get("SLACK_KEY")
 PASSWORD = os.environ.get("FLASK_PASSWORD")
 
 BASE_RELAY_CMD = "sudo usbrelay V5ZEA_1={}"
-app = Flask(__name__)
+app = Flask(__name__, static_url_path=os.getcwd())
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 app.cam = pygame.camera.init()
@@ -146,6 +146,22 @@ def main():
         0]
     last_watering = (session.query(WateringEvent.date).order_by(WateringEvent.date.desc()).first() or ["None"])[0]
     return render_template("home.html", reading=latest_reading, last_watering=last_watering)
+
+
+@app.route("/dump-watering")
+def dump_water():
+    with open("dump_watering.csv", "w") as f:
+        for reading in session.query(WateringEvent).all():
+            f.write("{},{},{}\n".format(reading.duration, reading.date.timestamp(), reading.dry))
+    return send_file('dump_watering.csv')
+
+import os
+@app.route("/dump-moisture")
+def dump_moisture():
+    with open("dump_moisture.csv", "w") as f:
+        for reading in session.query(MoistureReading).all():
+            f.write("{},{}\n".format(reading.reading, reading.date.timestamp()))
+    return send_file('dump_moisture.csv')
 
 
 def record_moisture(session):
