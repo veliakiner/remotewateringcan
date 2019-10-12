@@ -65,14 +65,13 @@ def hello_world():
     duration = max(duration, 0)
     duration = min(duration, 20)
     try:
+        initial_reading = read() # assume this blocks
         start_watering()
         time.sleep(duration)
     finally:
         stop_watering()
 
-
-    def confirm_and_commit(delay=SAMPLING_FREQ * 1.5):
-        reading_before = read()
+    def confirm_and_commit(reading_before, delay=SAMPLING_FREQ * 1.5):
         time.sleep(delay)
         reading_after = read()
         # lower reading is wetter
@@ -89,7 +88,7 @@ def hello_world():
                                       "(before: {}, after: {}). Check that the tank has water.".format(reading_before, reading_after)})
 
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
-    deferred = threading.Thread(target=lambda: confirm_and_commit())
+    deferred = threading.Thread(target=lambda: confirm_and_commit(initial_reading))
     deferred.start()
     return "Success"
 
