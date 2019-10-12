@@ -1,14 +1,12 @@
-import io
 import json
 import os
-import subprocess
 import threading
 
 import time
 from datetime import datetime
 from subprocess import check_call
 
-from flask import Flask, Response, render_template, request, send_file
+from flask import Flask, render_template, request, send_file
 from PIL import Image
 
 import pygame
