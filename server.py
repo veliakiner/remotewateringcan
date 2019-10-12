@@ -72,8 +72,10 @@ def hello_world():
     def confirm_and_commit(reading_before, delay=SAMPLING_FREQ * 1.5):
         time.sleep(delay)
         reading_after = read()
-        # lower reading is wetter
-        dry = (reading_after - reading_before) > 100 #  based off anecdotal observation that natural fluctations don't exceed this
+        # lower reading is wetter, but due to fluctations in the moisture level you the reading might drop slightly
+        # without watering so check for a minimum reading drop
+        wet = (reading_before - reading_after) > 100
+        dry = not wet
         event = WateringEvent(date=datetime.now(), duration=duration, dry=dry)
         session.add(event)
         session.commit()
