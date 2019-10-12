@@ -73,17 +73,19 @@ def hello_world():
         time.sleep(delay)
         reading_after = read()
         # lower reading is wetter
-        dry = reading_after >= reading_before
+        dry = (reading_after - reading_before) > 100 #  based off anecdotal observation that natural fluctations don't exceed this
         event = WateringEvent(date=datetime.now(), duration=duration, dry=dry)
         session.add(event)
         session.commit()
         fail_message = "Plant was watered but no moisture level increase was detected " \
                        "(before: {}, after: {}). Check that the tank has water.".format(reading_before, reading_after)
+        # for debugging purposes
         success_message = "Watered successfully. Readings: (before: {}, after: {})".format(reading_before, reading_after)
         # Warn me about potentially dry tank
-        requests.post("https://hooks.slack.com/services/{}".format(slack_key),
-                      headers={"Content-type": "application/json"},
-                      json={"text": (fail_message if dry else success_message)})
+        if dry:
+            requests.post("https://hooks.slack.com/services/{}".format(slack_key),
+                          headers={"Content-type": "application/json"},
+                          json={"text": (fail_message)})
 
 
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
