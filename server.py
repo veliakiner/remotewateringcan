@@ -77,13 +77,14 @@ def hello_world():
         event = WateringEvent(date=datetime.now(), duration=duration, dry=dry)
         session.add(event)
         session.commit()
-        if dry:
-            # Warn me about potentially dry tank
-            requests.post("https://hooks.slack.com/services/{}".format(slack_key),
-                          headers={"Content-type": "application/json"},
-                          json={
-                              "text": "Plant was watered but no moisture level increase was detected "
-                                      "(before: {}, after: {}). Check that the tank has water.".format(reading_before, reading_after)})
+        fail_message = "Plant was watered but no moisture level increase was detected " \
+                       "(before: {}, after: {}). Check that the tank has water.".format(reading_before, reading_after)
+        success_message = "Watered successfully. Readings: (before: {}, after: {})".format(reading_before, reading_after)
+        # Warn me about potentially dry tank
+        requests.post("https://hooks.slack.com/services/{}".format(slack_key),
+                      headers={"Content-type": "application/json"},
+                      json={"text": (fail_message if dry else success_message)})
+
 
     # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
     deferred = threading.Thread(target=lambda: confirm_and_commit(initial_reading))
