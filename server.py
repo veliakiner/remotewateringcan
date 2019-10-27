@@ -56,6 +56,10 @@ def hello_world():
     if password != PASSWORD:
         return "Failed: wrong password"
     duration = loaded.get("duration")
+    return _water(duration)
+
+
+def _water(duration, defer_reading=True):
     try:
         duration = int(duration)
     except TypeError:
@@ -84,29 +88,17 @@ def hello_world():
         # for debugging purposes
         success_message = "Watered successfully. Readings: (before: {}, after: {})".format(reading_before, reading_after)
         # Warn me about potentially dry tank
-        if dry:
-            requests.post("https://hooks.slack.com/services/{}".format(slack_key),
-                          headers={"Content-type": "application/json"},
-                          json={"text": (fail_message)})
+        requests.post("https://hooks.slack.com/services/{}".format(slack_key),
+                      headers={"Content-type": "application/json"},
+                      json={"text": (fail_message if dry else success_message)})
 
-
-    # TODO: use sensor to detect moisture level increase and to figure out if the water tank is empty
-    deferred = threading.Thread(target=lambda: confirm_and_commit(initial_reading))
-    deferred.start()
+    if defer_reading:
+        deferred = threading.Thread(target=lambda: confirm_and_commit(initial_reading))
+        deferred.start()
+    else:
+        confirm_and_commit(initial_reading)
     return "Success"
 
-
-# @app.after_request
-# def add_header(r):
-#     """
-#     Add headers to both force latest IE rendering engine or Chrome Frame,
-#     and also to cache the rendered page for 10 minutes.
-#     """
-#     r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-#     r.headers["Pragma"] = "no-cache"
-#     r.headers["Expires"] = "0"
-#     r.headers['Cache-Control'] = 'public, max-age=0'
-#     return r
 
 RES = (640, 480)
 
@@ -175,6 +167,8 @@ def record_forever(session):
     while True:
         record_moisture(session)
         time.sleep(SAMPLING_FREQ)
+        if read() >= 20000:
+            _water(duration=5, defer_reading=False)
 
 
 if __name__ == "__main__":
