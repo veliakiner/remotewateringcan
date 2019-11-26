@@ -56,7 +56,8 @@ def hello_world():
     if password != PASSWORD:
         return "Failed: wrong password"
     duration = loaded.get("duration")
-    return _water(duration)
+    _water(duration)
+    return "success"
 
 
 def _water(duration, defer_reading=True):
@@ -91,12 +92,12 @@ def _water(duration, defer_reading=True):
         requests.post("https://hooks.slack.com/services/{}".format(slack_key),
                       headers={"Content-type": "application/json"},
                       json={"text": (fail_message if dry else success_message)})
-
+        return dry
     if defer_reading:
         deferred = threading.Thread(target=lambda: confirm_and_commit(initial_reading))
         deferred.start()
     else:
-        confirm_and_commit(initial_reading)
+        return confirm_and_commit(initial_reading)
     return "Success"
 
 
@@ -164,12 +165,15 @@ def record_moisture(session):
 
 
 def record_forever(session):
+    dry = False
     while True:
         record_moisture(session)
         time.sleep(SAMPLING_FREQ)
         if read() >= 20000:
-            _water(duration=5, defer_reading=False)
-
+            dry = _water(duration=5, defer_reading=False)
+        if dry:
+            # when the tank runs dry I don't want to be spammed
+            time.sleep(60 * 60 * 2)
 
 if __name__ == "__main__":
     record_forever(session)
