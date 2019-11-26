@@ -170,7 +170,7 @@ def record_forever(session):
         record_moisture(session)
         time.sleep(SAMPLING_FREQ)
         if read() >= 20000:
-            dry = _water(duration=5, defer_reading=False)
+            dry = _water(duration=20, defer_reading=False)
         if dry:
             # when the tank runs dry I don't want to be spammed
             time.sleep(60 * 60 * 2)
